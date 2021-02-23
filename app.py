@@ -8,14 +8,24 @@ dateinvers = lambda x : f"{x[2]}-{x[1]}-{x[0]}"
 
 wb = openpyxl.load_workbook("base.xlsx")
 ws = wb.active
-data = list(ws.iter_rows(values_only=True, min_row=2, max_row=10))
+data = list(ws.iter_rows(values_only=True, min_row=2))
 # print(data)
 
 def xmlformatter(r):
     sex = lambda x : 1 if x == 'М' else 2
     snils = r[2].replace('-', '').replace(' ', '')
     birth_date = dateinvers(datesplit(r[7]))
-    receive_date = dateinvers(datesplit(r[8]))
+
+    if r[8] != None:
+        receive_date = dateinvers(datesplit(r[8]))
+    else:
+        receive_date = birth_date
+
+    if r[5] != None:
+        patronymic = r[5].title().replace(' ', '')
+    else:
+        patronymic = ''
+        
     result = f"""   <document>
         <document_id>{str(uuid4())}</document_id>
         <doc_date_time>{datenow}</doc_date_time>
@@ -23,7 +33,7 @@ def xmlformatter(r):
             <ext_citizen_id>{snils}</ext_citizen_id>
             <name>{r[4].title().replace(' ', '')}</name>
             <surname>{r[3].title().replace(' ', '')}</surname>
-            <patronymic>{r[5].title().replace(' ', '')}</patronymic>
+            <patronymic>{patronymic}</patronymic>
             <birthdate>{birth_date}</birthdate>
             <sex>{sex(r[6])}</sex>
             <citizenship>643</citizenship>
@@ -32,7 +42,7 @@ def xmlformatter(r):
         </citizen>
         <benefits>
             <benefit>
-            <benefit_code>1.00000.0217</benefit_code>
+            <benefit_code>1.00000.0076</benefit_code>
             <ext_benefit_code/>
             <diagnosis/>
             <receive_date>{receive_date}</receive_date>
